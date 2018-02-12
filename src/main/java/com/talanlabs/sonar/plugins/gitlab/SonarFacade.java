@@ -232,7 +232,7 @@ public class SonarFacade {
 
     private Issues.SearchWsResponse searchIssues(String componentKey, String branch, int page) {
         GetRequest getRequest = new GetRequest("api/issues/search").setParam("componentKeys", componentKey).setParam("p", page).setParam("resolved", false).setMediaType(MediaTypes.PROTOBUF);
-        if (branch != null && !branch.trim().isEmpty()) {
+        if (!isEmptyOrBlank(branch)) {
             getRequest.setParam("branch", branch);
         }
         WsResponse wsResponse = wsClient.wsConnector().call(getRequest);
@@ -246,6 +246,10 @@ public class SonarFacade {
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
+    }
+
+    private boolean isEmptyOrBlank(String branch) {
+        return branch == null || branch.isEmpty() || branch.trim().isEmpty();
     }
 
     private String toString(GetRequest getRequest) {
@@ -291,7 +295,12 @@ public class SonarFacade {
     }
 
     private String getPathPrefix(Issues.Component component) {
-        WsComponents.ShowWsResponse showWsResponse = wsClient.components().show(new ShowWsRequest().setKey(component.getKey()));
+        final ShowWsRequest showWsRequest = new ShowWsRequest().setKey(component.getKey());
+        final String branch = gitLabPluginConfiguration.refName();
+        if (!isEmptyOrBlank(branch)) {
+            showWsRequest.setBranch(branch);
+        }
+        WsComponents.ShowWsResponse showWsResponse = wsClient.components().show(showWsRequest);
 
         StringBuilder sb = new StringBuilder();
         for (WsComponents.Component a : showWsResponse.getAncestorsList()) {
