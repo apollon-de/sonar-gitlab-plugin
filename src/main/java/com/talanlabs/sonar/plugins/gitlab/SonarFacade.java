@@ -271,9 +271,16 @@ public class SonarFacade {
 
             File file = null;
             if (componentOptional.isPresent()) {
-                Issues.Component component = componentOptional.get();
+                final Issues.Component component = componentOptional.get();
                 try {
-                    file = componentCache.get(component.getKey(), () -> toFile(componentOptional.get()));
+                    file = componentCache.get(component.getKey(), () -> {
+                        final String path = component.getPath();
+                        try {
+                            return new File(getPathPrefix(component) + path);
+                        } catch (HttpException e) {
+                            return new File(path);
+                        }
+                    });
                 } catch (Exception e) {
                     throw new IllegalStateException("Failed to get component file for " + component.getKey(), e);
                 }
@@ -283,16 +290,16 @@ public class SonarFacade {
         return res;
     }
 
-    private File toFile(Issues.Component component) {
+    private String getPathPrefix(Issues.Component component) {
         WsComponents.ShowWsResponse showWsResponse = wsClient.components().show(new ShowWsRequest().setKey(component.getKey()));
 
-        StringBuilder sb = new StringBuilder(component.getPath());
+        StringBuilder sb = new StringBuilder();
         for (WsComponents.Component a : showWsResponse.getAncestorsList()) {
             if ("BRC".equals(a.getQualifier()) && a.getPath() != null) {
                 sb.insert(0, a.getPath() + File.separator);
             }
         }
-        return new File(sb.toString());
+        return sb.toString();
     }
 
     private Issue toIssue(Issues.Issue issue, File relativeFile) {
