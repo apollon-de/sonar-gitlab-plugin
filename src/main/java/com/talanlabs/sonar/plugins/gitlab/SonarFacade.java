@@ -32,6 +32,7 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonarqube.ws.*;
@@ -54,6 +55,7 @@ public class SonarFacade {
 
     private static final Logger LOG = Loggers.get(SonarFacade.class);
     private static final String LOG_MSG = "{}: {} {} {}";
+    private static final Set<String> SUPPORTED_QUALIFIERS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE)));
     private final GitLabPluginConfiguration gitLabPluginConfiguration;
     private final WsClient wsClient;
     private File projectBaseDir;
@@ -61,6 +63,7 @@ public class SonarFacade {
 
     private Cache<String, File> componentCache = CacheBuilder.newBuilder().build();
     private Cache<String, Rule> ruleCache = CacheBuilder.newBuilder().build();
+
 
     public SonarFacade(Settings settings, GitLabPluginConfiguration gitLabPluginConfiguration) {
         this.gitLabPluginConfiguration = gitLabPluginConfiguration;
@@ -271,7 +274,10 @@ public class SonarFacade {
 
         List<Issue> res = new ArrayList<>();
         for (Issues.Issue issue : issues) {
-            Optional<Issues.Component> componentOptional = components.stream().filter(c -> c.getKey().equals(issue.getComponent()) && "FIL".equals(c.getQualifier())).findFirst();
+            Optional<Issues.Component> componentOptional = components.stream()
+                    .filter(c -> SUPPORTED_QUALIFIERS.contains(c.getQualifier()))
+                    .filter(c -> c.getKey().equals(issue.getComponent()))
+                    .findFirst();
 
             File file = null;
             if (componentOptional.isPresent()) {
