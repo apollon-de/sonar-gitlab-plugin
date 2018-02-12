@@ -190,4 +190,14 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>maven-release-local</id>
+      <url>https://maven.pd.apollon.de/repository/libs-release-local/</url>
+    </repository>
+    <snapshotRepository>
+      <id>maven-snapshot-local</id>
+      <url>https://maven.pd.apollon.de/repository/libs-snapshot-local/</url>
+    </snapshotRepository>
+  </distributionManagement>
 </project>

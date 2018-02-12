@@ -7,5 +7,3 @@ build_job:
     - master
   script:
     - mvn --batch-mode clean deploy
-      -DaltReleaseDeploymentRepository=maven-release-local
-      -DaltSnapshotDeploymentRepository=maven-snapshot-local
