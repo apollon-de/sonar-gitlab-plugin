@@ -295,7 +295,7 @@ public class SonarFacade {
 
         StringBuilder sb = new StringBuilder(component.getPath());
         for (WsComponents.Component a : showWsResponse.getAncestorsList()) {
-            if ("BRC".equals(a.getQualifier()) && a.getPath() != null) {
+            if (Qualifiers.MODULE.equals(a.getQualifier()) && a.getPath() != null) {
                 sb.insert(0, a.getPath() + File.separator);
             }
         }
