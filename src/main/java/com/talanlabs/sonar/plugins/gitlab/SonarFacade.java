@@ -238,7 +238,7 @@ public class SonarFacade {
         WsResponse wsResponse = wsClient.wsConnector().call(getRequest);
 
         if (wsResponse.code() != 200) {
-            throw new HttpException(wsClient.wsConnector().baseUrl() + toString(getRequest), wsResponse.code());
+            throw new HttpException(wsClient.wsConnector().baseUrl() + toString(getRequest), wsResponse.code(), wsResponse.content());
         }
 
         try {
@@ -322,7 +322,7 @@ public class SonarFacade {
         WsResponse wsResponse = wsClient.wsConnector().call(getRequest);
 
         if (wsResponse.code() != 200) {
-            throw new HttpException(wsClient.wsConnector().baseUrl() + toString(getRequest), wsResponse.code());
+            throw new HttpException(wsClient.wsConnector().baseUrl() + toString(getRequest), wsResponse.code(), wsResponse.content());
         }
 
         try {
