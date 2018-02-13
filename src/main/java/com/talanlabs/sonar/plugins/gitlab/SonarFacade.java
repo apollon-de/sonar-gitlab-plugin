@@ -288,7 +288,13 @@ public class SonarFacade {
     }
 
     private File toFile(Issues.Component component) {
-        WsComponents.ShowWsResponse showWsResponse = wsClient.components().show(new ShowWsRequest().setKey(component.getKey()));
+        ShowWsRequest showRequest = new ShowWsRequest().setKey(component.getKey());
+        WsComponents.ShowWsResponse showWsResponse = wsClient.components().show(showRequest);
+
+        String branch = gitLabPluginConfiguration.refName();
+        if (!isBlankOrEmpty(branch)) {
+            showRequest.setBranch(branch);
+        }
 
         StringBuilder sb = new StringBuilder(component.getPath());
         for (WsComponents.Component a : showWsResponse.getAncestorsList()) {
